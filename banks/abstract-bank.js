@@ -11,6 +11,24 @@ const asyncFilter = async (array, asyncCallback) => {
   return Promise.all(array.map(asyncCallback))
     .then(bits => array.filter((_, i) => bits[i]));
 }
+/**
+* 環境変数名にプレフィックスをつけて値をコピーする。
+* yargsの.env()でプレフィックスありなしを同時に扱うためのトリッキーな解決策。
+*/
+const addPrefixToEnv = (prefix) => {
+  if (prefix == '') {
+    return;
+  }
+  prefix = prefix + '_';
+  Object.keys(process.env).forEach(function (key) {
+    if (!key.startsWith(prefix)) {
+      const newKey = prefix + key;
+      if (!process.env.hasOwnProperty(newKey)) {
+        process.env[newKey] = process.env[key];
+      }
+    }
+  });
+}
 
 const properties = {
   _nullinitOnceCalled: false,
@@ -434,6 +452,7 @@ generate_yargs_builder = (BankClazz) => {
   let obj = null;
   const envPrefix = BankClazz.name.toUpperCase();
   return (yargs) => {
+    addPrefixToEnv(envPrefix);
     return yargs
       .env(envPrefix)
       .middleware(argv => obj = obj || new BankClazz(argv))
