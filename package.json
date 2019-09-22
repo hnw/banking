@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@hnw/easyaes": "*",
+    "@hnw/easyaes": "^0.0.7",
     "@hnw/log4js-customized": "*",
     "@hnw/puppeteer-customized": "^1.0.5",
     "@hnw/yargs-customized": "*",
