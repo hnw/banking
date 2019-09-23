@@ -148,7 +148,7 @@ class AbstractBank {
   
   async loginResult() {
     // do nothing
-    this.logger.info("loginResult()")
+    this.logger.debug("loginResult()")
   }
 
   async transfer(bankName, amount) {
