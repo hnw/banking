@@ -14,6 +14,7 @@ class Shinsei extends AbstractBank {
       transferValidatorError: ['振込手数料無料回数が残っていません', 'キャッシュバック額が不正です', ],
       transferConfirmFormSelector: 'p.btnSpace',
       transferConfirmSubmitButtonSelector: 'button:not(.return)',
+      transferConfirmFormTimeout: 900000, // 15min
     };
   }
 

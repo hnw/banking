@@ -319,6 +319,11 @@ class AbstractBank {
     );
   }
 
+  /**
+   * フォームに適切な値を入力してフォーム送信します。
+   * @param {Object} params フォームの入力値やその他必要な値
+   * @return {AbstractBank}
+   */
   async submitForm(params) {
     const defaults = {
       formSelector: 'form',
@@ -345,13 +350,72 @@ class AbstractBank {
     } else {
       await this._page.waitForSelector(spec.formSelector);
     }
-    const fullHtml = await this._page.content();
+
+    const {form, textFields, passwordFields, submitButtons} = await this.findForm(spec);
+    if (form === null) {
+      //const fullHtml = await this._page.content();
+      //console.log(fullHtml);
+      throw new Error(`form not found: ${spec.textValues.length} text / ${spec.passwordValues.length} password / 1 button`);
+    }
+
+    for (let i = 0; i < textFields.length; i++) {
+      const val = spec.textValues[i];
+      if (val === undefined || val === null) {
+        throw new Error(`undefined value for text field #${i}`);
+      }
+      this.logger.debug(`input #${i}: outerHTML = ${await textFields[i].outerHTML}`);
+      await textFields[i].type(val + '');
+      await this._page.waitFor(waitTimeForInputField);
+    }
+    for (let i = 0; i < passwordFields.length; i++) {
+      const val = spec.passwordValues[i];
+      if (val === undefined || val === null) {
+        throw new Error(`undefined value for password field #${i}`);
+      }
+      await passwordFields[i].type(val + '');
+      await this._page.waitFor(waitTimeForInputField);
+    }
+    try {
+      let options = {waitUntil: 'networkidle2'};
+      if (spec.formTimeout) {
+        options['timeout'] = spec.formTimeout;
+      }
+      this.logger.debug('waiting networkidle2...');
+      await Promise.all([
+        this._page.waitForNavigation(options),
+        submitButtons[0].click()
+      ]);
+      this.logger.debug('done');
+    } catch (e) {
+      this.logger.debug(`timeout: submitButtons[0].outerHTML = ${await submitButtons[0].outerHTML}`);
+      if (e instanceof TimeoutError) {
+        const err = await this.getNormalizedText(spec.errorSelector, " ");
+        if (err) {
+          // タイムアウト＆ログイン失敗
+          throw new Error(err);
+        }
+      }
+      throw e;
+    }
+    const err = await this.getNormalizedText(spec.errorSelector, " ");
+    if (err) {
+      // ログイン失敗
+      throw new Error(err);
+    }
+    return this;
+  }
+
+  /**
+   * ページ中から入力できそうなフォームを返します
+   * @param {Object} spec フォームの入力値やその他必要な値
+   * @return {ElementHandle|null}
+   */
+  async findForm(spec) {
     const forms = await this._page.$$(spec.formSelector).then(
       els => asyncFilter(els, el => el.isVisible())
     );
     if (forms.length == 0) {
-      console.log(fullHtml);
-      throw new Error('form not found');
+      return null;
     }
     let form = null;
     let textFields, passwordFields, submitButtons;
@@ -396,55 +460,10 @@ class AbstractBank {
       if (textFields.length == spec.textValues.length &&
           passwordFields.length == spec.passwordValues.length &&
           submitButtons.length == 1) {
-        break;
+        return {form, textFields, passwordFields, submitButtons};
       }
-      form = null;
     }
-    if (form === null) {
-      //console.log(fullHtml);
-      throw new Error(`form not found: ${spec.textValues.length} text / ${spec.passwordValues.length} password / 1 button`);
-    }
-    for (let i = 0; i < textFields.length; i++) {
-      const val = spec.textValues[i];
-      if (val === undefined || val === null) {
-        throw new Error(`undefined value for text field #${i}`);
-      }
-      this.logger.debug(`input #${i}: outerHTML = ${await textFields[i].outerHTML}`);
-      await textFields[i].type(val + '');
-      await this._page.waitFor(waitTimeForInputField);
-    }
-    for (let i = 0; i < passwordFields.length; i++) {
-      const val = spec.passwordValues[i];
-      if (val === undefined || val === null) {
-        throw new Error(`undefined value for password field #${i}`);
-      }
-      await passwordFields[i].type(val + '');
-      await this._page.waitFor(waitTimeForInputField);
-    }
-    try {
-      this.logger.debug('waiting networkidle2...');
-      await Promise.all([
-        this._page.waitForNavigation({waitUntil: 'networkidle2'}),
-        submitButtons[0].click()
-      ]);
-      this.logger.debug('done');
-    } catch (e) {
-      this.logger.debug(`timeout: submitButtons[0].outerHTML = ${await submitButtons[0].outerHTML}`);
-      if (e instanceof TimeoutError) {
-        const err = await this.getNormalizedText(spec.errorSelector, " ");
-        if (err) {
-          // タイムアウト＆ログイン失敗
-          throw new Error(err);
-        }
-      }
-      throw e;
-    }
-    const err = await this.getNormalizedText(spec.errorSelector, " ");
-    if (err) {
-      // ログイン失敗
-      throw new Error(err);
-    }
-    return this;
+    return null;
   }
 }
 
