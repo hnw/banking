@@ -51,9 +51,8 @@ class Shinsei extends AbstractBank {
   async transferConfirm() {
     // ページレンダリング待ち
     await this._page.waitForSelector('h1', {visible: true});
-    // ↑では待ててない分があるっぽいので5秒待ち
-    await this._page.waitFor(5000);
-    // TODO: スマホ認証終了待ちのタイムアウト時間を長くする
+    // ↑では待ててない分があるっぽいので10秒待ち
+    await this._page.waitFor(10000);
     return super.transferConfirm();
   }
 
