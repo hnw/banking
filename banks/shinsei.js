@@ -10,7 +10,7 @@ class Shinsei extends AbstractBank {
       transferInputFormSelector: 'body',
       transferInputTextFieldSelector: 'input[name="amount"]',
       transferInputSubmitButtonSelector: 'p.inputAmountBtnSpace button:nth-child(2)',
-      transferValidator: [/^今月の他行宛振込手数料無料回数.*残り\s*([1-9]|10)回.*$/m, /^キャッシュバック.*206円$/m],
+      transferValidator: [/^今月の他行宛振込手数料無料回数.*残り\s*([1-9]|10)回.*$/m, /^キャッシュバック.*210円$/m],
       transferValidatorError: ['振込手数料無料回数が残っていません', 'キャッシュバック額が不正です', ],
       transferConfirmFormSelector: 'p.btnSpace',
       transferConfirmSubmitButtonSelector: 'button:not(.return)',
