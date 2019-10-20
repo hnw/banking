@@ -8,6 +8,16 @@ const decryptValues = (argv) => {
   return cipher.decrypt(argv, 2);
 }
 
+const setDebugAliases = (argv) => {
+  if (argv.debug) {
+    return {
+      headless: false,
+      verbose: 3,
+    }
+  }
+  return;
+}
+
 async function cli() {
   require('dotenv').config({path: __dirname + '/.env'})
   let globalOptions;
@@ -18,6 +28,7 @@ async function cli() {
       .describe('debug', 'Force headful')
       .version('0.0.1')
       .middleware(decryptValues)
+      .middleware(setDebugAliases)
       .fail((msg, err, yargs) => {
         if (msg) {
           // failure message: might be typo for sub-command name
