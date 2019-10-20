@@ -6,7 +6,7 @@ class SumishinSbi extends AbstractBank {
       loginUrl: 'https://www.netbk.co.jp/contents/pages/wpl010101/i010101CT/DI01010210',
       errorSelector: 'div.m-boxError,div.m-boxWarn',
       transferUrl: 'https://www.netbk.co.jp/contents/pages/wpl040102/i040102CT/DI04010100?CallerScreen=2',
-      transferSelectCandidateSelector: 'div.m-ctsAccountList-cont div.m-boxDef-box',
+      transferSelectCandidateSelector: 'div.m-furikomi-kozalist li.ng-star-inserted',
       transferSelectLabelSelector: 'a.m-link',
       transferInputFormSelector: 'div.m-contentsWrap',
       transferInputTextFieldSelector: 'input[name="tfrAmt0"]',
@@ -25,19 +25,6 @@ class SumishinSbi extends AbstractBank {
     await this._page.waitForNavigation({waitUntil: 'networkidle2', timeout: 600000});
     // スマート認証が完了すると確認画面に遷移する
     return super.transferResult();
-  }
-
-  async gotoTransferPage() {
-    await super.gotoTransferPage();
-    // 「登録した振込先」 を押す
-    const bankListButton = await this._page.waitForSelector(
-      'a.m-ctsAccountList-btn div.m-ctsAccountList-btn-txt:nth-child(2)',
-      {visible: true}
-    );
-    if (!bankListButton) {
-      throw new Error('「登録した振込先」ボタンが見つかりませんでした');
-    }
-    return bankListButton.click()
   }
 }
 
