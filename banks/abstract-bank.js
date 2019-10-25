@@ -376,13 +376,16 @@ class AbstractBank {
       await this._page.waitFor(waitTimeForInputField);
     }
     try {
-      let options = {waitUntil: 'networkidle2'};
+      let options_loaded = {waitUntil: 'domcontentloaded'};
+      let options_idle2 = {waitUntil: 'networkidle2'};
       if (spec.formTimeout) {
-        options['timeout'] = spec.formTimeout;
+        options_loaded['timeout'] = spec.formTimeout;
+        options_idle2['timeout'] = spec.formTimeout;
       }
       this.logger.debug('waiting networkidle2...');
       await Promise.all([
-        this._page.waitForNavigation(options),
+        this._page.waitForNavigation(options_loaded),
+        this._page.waitForNavigation(options_idle2),
         submitButtons[0].click()
       ]);
       this.logger.debug('done');
@@ -397,10 +400,12 @@ class AbstractBank {
       }
       throw e;
     }
-    const err = await this.getNormalizedText(spec.errorSelector, " ");
-    if (err) {
-      // ログイン失敗
-      throw new Error(err);
+    if (spec.errorSelector) {
+      const errMsg = await this.getNormalizedText(spec.errorSelector, " ");
+      if (errMsg) {
+        // ログイン失敗
+        throw new Error(errMsg);
+      }
     }
     return this;
   }
