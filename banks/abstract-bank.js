@@ -376,16 +376,13 @@ class AbstractBank {
       await this._page.waitFor(waitTimeForInputField);
     }
     try {
-      let options_loaded = {waitUntil: 'domcontentloaded'};
-      let options_idle2 = {waitUntil: 'networkidle2'};
+      let waitOption = {waitUntil: ['loaded', 'networkidle2']}
       if (spec.formTimeout) {
-        options_loaded['timeout'] = spec.formTimeout;
-        options_idle2['timeout'] = spec.formTimeout;
+        waitOption['timeout'] = spec.formTimeout;
       }
-      this.logger.debug('waiting networkidle2...');
+      this.logger.debug('waiting loaded...');
       await Promise.all([
-        this._page.waitForNavigation(options_loaded),
-        this._page.waitForNavigation(options_idle2),
+        this._page.waitForNavigation(waitOption),
         submitButtons[0].click()
       ]);
       this.logger.debug('done');
