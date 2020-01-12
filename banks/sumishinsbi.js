@@ -22,7 +22,7 @@ class SumishinSbi extends AbstractBank {
   }
 
   async transferResult() {
-    this.logger.info('スマート認証を行ってください');
+    this.logger.info('スマート認証を行ってください。');
     // スマート認証終了待ち（タイムアウト600秒=10分）
     await this._page.waitForNavigation({waitUntil: 'networkidle2', timeout: 600000});
     // スマート認証が完了すると確認画面に遷移する
