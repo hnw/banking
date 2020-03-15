@@ -24,15 +24,15 @@ class Shinsei extends AbstractBank {
     await this._page.waitForSelector('h1', {visible: true});
     // 「振込」トップへ
     await Promise.all([
-      this._page.waitForNavigation({waitUntil: 'networkidle2'}),
-      this._page.$('header li a[href*="/transfer/top"]').then(el => el.click())
+      this._page.waitForNavigation({waitUntil: ["load", "networkidle2"]}),
+      this._page.$('header li.nav-item a[ng-click*="TR0001"]').then(el => el.click())
     ]);
     // ページレンダリング待ち
     await this._page.waitForSelector('h1', {visible: true});
     // 振込先選択ページへ
     return Promise.all([
-      this._page.waitForNavigation({waitUntil: 'networkidle2'}),
-      this._page.$('header li a[href*="/transfer/selectBeneficiary"]').then(el => el.click())
+      this._page.waitForNavigation({waitUntil: ["load", "networkidle2"]}),
+      this._page.$('header ul.sub li a[ng-click*="TR0002"]').then(el => el.click())
     ]);
   }
 
