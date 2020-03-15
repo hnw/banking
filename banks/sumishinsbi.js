@@ -14,6 +14,7 @@ class SumishinSbi extends AbstractBank {
       transferConfirmListSelector: 'tr th p, td div.m-colorMinus, td div.m-tbl-row, div.m-boxList div.m-boxList-detail dl',
       transferConfirmFormSelector: 'div.m-ctsCertification',
       transferConfirmSubmitButtonSelector: 'div.m-ctsCertification-cts-smart a',
+      transferConfirmOutput: true, // スマホ認証前に内容確認するため
       transferValidator: /^振込手数料\s*0円$/m,
       transferValidatorError: '振込手数料がかかります',
       transferResultListSelector: 'tr th p, td div.m-colorMinus, td div.m-tbl-row, div.m-boxList div.m-boxList-detail dl',
@@ -21,6 +22,7 @@ class SumishinSbi extends AbstractBank {
   }
 
   async transferResult() {
+    this.logger.info('スマート認証を行ってください。');
     // スマート認証終了待ち（タイムアウト600秒=10分）
     await this._page.waitForNavigation({waitUntil: 'networkidle2', timeout: 600000});
     // スマート認証が完了すると確認画面に遷移する
